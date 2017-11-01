@@ -17,7 +17,7 @@ ACLModuleManager::ACLModuleManager() :
 
 bool ACLModuleManager::GetACLModule(bool useHSAILPath, ACLModule*& pAclModule, aclCompiler*& pAclCompiler)
 {
-    bool retVal;
+    bool retVal = false;
 
     if (useHSAILPath)
     {
@@ -44,6 +44,7 @@ bool ACLModuleManager::GetACLModule(bool useHSAILPath, ACLModule*& pAclModule, a
         {
             pAclModule = m_pAclModule20;
             pAclCompiler = m_pCompiler20;
+            retVal = pAclModule->IsLoaded() && (nullptr != pAclCompiler);
         }
     }
     else
@@ -68,6 +69,7 @@ bool ACLModuleManager::GetACLModule(bool useHSAILPath, ACLModule*& pAclModule, a
         {
             pAclModule = m_pAclModule12;
             pAclCompiler = m_pCompiler12;
+            retVal = pAclModule->IsLoaded() && (nullptr != pAclCompiler);
         }
     }
 
