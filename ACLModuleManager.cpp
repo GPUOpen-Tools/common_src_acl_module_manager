@@ -5,6 +5,10 @@
 /// \brief This file manages multiple instances of the ACL Module
 //==============================================================================
 
+#ifndef _WIN32
+    #include <dlfcn.h>
+#endif
+
 #include "ACLModuleManager.h"
 
 ACLModuleManager::ACLModuleManager() :
@@ -30,7 +34,21 @@ bool ACLModuleManager::GetACLModule(bool useHSAILPath, ACLModule*& pAclModule, a
             if (nullptr != m_pAclModule20)
             {
                 m_pAclModule20->UnloadModule();
-                m_pAclModule20->LoadModule(ACLModule::s_TMP_MODULE_NAME);
+                std::string moduleName(ACLModule::s_TMP_MODULE_NAME);
+#ifndef _WIN32
+                void* pModuleHandle = dlopen(moduleName.c_str(), RTLD_LAZY | RTLD_NOLOAD | RTLD_LOCAL);
+
+                if (nullptr == pModuleHandle && nullptr != ACLModule::s_TMP_ORCA_MODULE_NAME)
+                {
+                    pModuleHandle = dlopen(ACLModule::s_TMP_ORCA_MODULE_NAME, RTLD_LAZY | RTLD_NOLOAD | RTLD_LOCAL);
+
+                    if (nullptr != pModuleHandle)
+                    {
+                        moduleName = ACLModule::s_TMP_ORCA_MODULE_NAME;
+                    }
+                }
+#endif
+                m_pAclModule20->LoadModule(moduleName);
 
                 if (m_pAclModule20->IsLoaded())
                 {
